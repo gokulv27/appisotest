@@ -5,9 +5,11 @@ import '../widget/project_custom_bottom_navbar.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:permission_handler/permission_handler.dart';
+import '../api/document_api.dart';
 
 class DocumentPage extends StatefulWidget {
   final int projectId;
@@ -100,48 +102,54 @@ class _DocumentPageState extends State<DocumentPage> {
 
   Future<void> _requestPermissions() async {
     if (await Permission.storage.request().isGranted) {
-      // Permission is granted
+      // Permission granted.
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Storage permission is required')),
+        const SnackBar(content: Text('Storage permission is required')),
       );
     }
   }
 
   Future<void> _uploadDocumentManually() async {
-    await _requestPermissions();
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx', 'xls', 'xlsx', 'txt'],
+    );
 
-    // Use FilePicker to pick a document (if FilePicker is included)
-    // FilePickerResult? result = await FilePicker.platform.pickFiles(
-    //   type: FileType.custom,
-    //   allowedExtensions: ['pdf'],
-    // );
-    // if (result != null && result.files.single.path != null) {
-    //   String filePath = result.files.single.path!;
-    //   bool success = await _uploadFileToServer(filePath);
-    //   if (success) _loadDocuments();
-    // }
-  }
+    if (result != null && result.files.single.path != null) {
+      String filePath = result.files.single.path!;
+      File file = File(filePath);
 
-  Future<bool> _uploadFileToServer(String filePath) async {
-    try {
-      final fileName = filePath.split('/').last;
-      await _documentService.uploadDocument(
+      setState(() => _isLoading = true);
+
+      bool success = await _documentService.uploadDocument(
+        file: file,
+        documentName: 'Sample Document', // Replace with dynamic name if needed
         projectId: widget.projectId,
-        file: File(filePath),
-        fileName: fileName,
+        documentTypeId: 1, // Replace with dynamic document type if needed
       );
+
+      setState(() => _isLoading = false);
+
+      if (success) {
+        _loadDocuments(); // Reload documents after successful upload
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('File uploaded successfully')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('File upload failed')),
+        );
+      }
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('File uploaded successfully')),
+        const SnackBar(content: Text('File selection canceled')),
       );
-      return true;
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error uploading file: $e')),
-      );
-      return false;
     }
   }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -210,7 +218,12 @@ class _DocumentPageState extends State<DocumentPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _uploadDocumentManually,
-        child: const Icon(Icons.upload_file),
+        child: const Icon(
+          Icons.upload_file,
+          color: Colors.white,
+        ),
+
+
         backgroundColor: Colors.green,
       ),
     );
@@ -226,7 +239,10 @@ class PDFViewerPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('PDF Viewer'),
+        title: const Text(
+            'PDF Viewer',
+          style: TextStyle(color: Colors.white)
+        ),
         backgroundColor: Colors.black,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -234,7 +250,7 @@ class PDFViewerPage extends StatelessWidget {
         filePath: filePath,
         enableSwipe: true,
         swipeHorizontal: true,
-        autoSpacing: false,
+        autoSpacing: true,
         pageFling: false,
         onRender: (_pages) {},
         onError: (error) {
