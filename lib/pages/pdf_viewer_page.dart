@@ -10,7 +10,10 @@ class PDFViewerPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('PDF Viewer'),
+        title: const Text(
+          'PDF Viewer',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.black,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -18,8 +21,9 @@ class PDFViewerPage extends StatelessWidget {
         filePath: filePath,
         enableSwipe: true,
         swipeHorizontal: true,
-        autoSpacing: false,
-        pageFling: false,
+        autoSpacing: true,
+        pageFling: true,
+        onRender: (_pages) {},
         onError: (error) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Error loading PDF: $error')),

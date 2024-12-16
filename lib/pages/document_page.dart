@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
-import '../models/document.dart';
-import '../api/document_api.dart';
-import '../widget/project_custom_bottom_navbar.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:mime/mime.dart';
 import '../api/document_api.dart';
+import '../models/document.dart';
+import '../widget/project_custom_bottom_navbar.dart';
+import 'pdf_viewer_page.dart';
+import 'text_viewer_page.dart';
+import 'image_viewer_page.dart';
+import 'labor_to_project_page.dart';
+
 
 class DocumentPage extends StatefulWidget {
   final int projectId;
@@ -35,8 +39,7 @@ class _DocumentPageState extends State<DocumentPage> {
   Future<void> _loadDocuments() async {
     setState(() => _isLoading = true);
     try {
-      final documents =
-      await _documentService.getProjectDocuments(widget.projectId);
+      final documents = await _documentService.getProjectDocuments(widget.projectId);
       setState(() {
         _documents = documents;
         _isLoading = false;
@@ -55,6 +58,59 @@ class _DocumentPageState extends State<DocumentPage> {
       if (index == 0) {
         Navigator.pop(context);
       }
+      else if (index == 2) {
+        // Navigate to Labor to Project page
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => LaborToProjectPage(projectId: widget.projectId),
+          ),
+        );
+      }
+    }
+  }
+  Future<void> _uploadDocumentManually() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'xml'],
+    );
+
+    if (result != null && result.files.single.path != null) {
+      String filePath = result.files.single.path!;
+      File file = File(filePath);
+
+      setState(() => _isLoading = true);
+
+      try {
+        bool success = await _documentService.uploadDocument(
+          file: file,
+          documentName: result.files.single.name, // Use the selected file's name
+          projectId: widget.projectId,
+          documentTypeId: 1, // Replace with dynamic document type if needed
+        );
+
+        setState(() => _isLoading = false);
+
+        if (success) {
+          _loadDocuments(); // Reload documents after successful upload
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('File uploaded successfully')),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('File upload failed')),
+          );
+        }
+      } catch (e) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error uploading file: $e')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('File selection canceled')),
+      );
     }
   }
 
@@ -71,85 +127,69 @@ class _DocumentPageState extends State<DocumentPage> {
         SnackBar(content: Text('Downloaded $fileName')),
       );
     } catch (e) {
-      print("$e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error downloading file: $e')),
       );
     }
   }
 
-  Future<void> _viewPDF(String url) async {
+  Future<void> _viewFile(String url, String fileName) async {
     try {
       final response = await http.get(Uri.parse(url));
       final bytes = response.bodyBytes;
       final dir = await getApplicationDocumentsDirectory();
-      final file = File('${dir.path}/temp.pdf');
+      final file = File('${dir.path}/$fileName');
 
       await file.writeAsBytes(bytes, flush: true);
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PDFViewerPage(filePath: file.path),
-        ),
-      );
+      final extension = fileName.split('.').last.toLowerCase();
+
+      if (['jpg', 'jpeg', 'png'].contains(extension)) {
+        // Handle image viewing
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ImageViewerPage(filePath: file.path),
+          ),
+        );
+      } else if (extension == 'txt' || extension == 'xml') {
+        // Handle text or XML file viewing
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TextViewerPage(filePath: file.path),
+          ),
+        );
+      } else if (['xls', 'xlsx'].contains(extension)) {
+        // Handle Excel file (Open with a third-party viewer or prompt download)
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Excel viewer not implemented yet.')),
+        );
+      } else if (['doc', 'docx'].contains(extension)) {
+        // Handle Word document (Open with a third-party viewer or prompt download)
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Word viewer not implemented yet.')),
+        );
+      } else if (extension == 'pdf') {
+        // Handle PDF viewing
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PDFViewerPage(filePath: file.path),
+          ),
+        );
+      } else {
+        // Unsupported file type
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Unsupported file format.')),
+        );
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error opening file: $e')),
       );
     }
   }
-
-  Future<void> _requestPermissions() async {
-    if (await Permission.storage.request().isGranted) {
-      // Permission granted.
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Storage permission is required')),
-      );
-    }
-  }
-
-  Future<void> _uploadDocumentManually() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx', 'xls', 'xlsx', 'txt'],
-    );
-
-    if (result != null && result.files.single.path != null) {
-      String filePath = result.files.single.path!;
-      File file = File(filePath);
-
-      setState(() => _isLoading = true);
-
-      bool success = await _documentService.uploadDocument(
-        file: file,
-        documentName: 'Sample Document', // Replace with dynamic name if needed
-        projectId: widget.projectId,
-        documentTypeId: 1, // Replace with dynamic document type if needed
-      );
-
-      setState(() => _isLoading = false);
-
-      if (success) {
-        _loadDocuments(); // Reload documents after successful upload
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('File uploaded successfully')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('File upload failed')),
-        );
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('File selection canceled')),
-      );
-    }
-  }
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -197,7 +237,7 @@ class _DocumentPageState extends State<DocumentPage> {
                     IconButton(
                       icon: const Icon(Icons.visibility,
                           color: Colors.blue),
-                      onPressed: () => _viewPDF(document.fileUrl),
+                      onPressed: () => _viewFile(document.fileUrl,document.documentName),
                     ),
                     IconButton(
                       icon: const Icon(Icons.download,
@@ -222,47 +262,7 @@ class _DocumentPageState extends State<DocumentPage> {
           Icons.upload_file,
           color: Colors.white,
         ),
-
-
         backgroundColor: Colors.green,
-      ),
-    );
-  }
-}
-
-class PDFViewerPage extends StatelessWidget {
-  final String filePath;
-
-  const PDFViewerPage({Key? key, required this.filePath}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-            'PDF Viewer',
-          style: TextStyle(color: Colors.white)
-        ),
-        backgroundColor: Colors.black,
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
-      body: PDFView(
-        filePath: filePath,
-        enableSwipe: true,
-        swipeHorizontal: true,
-        autoSpacing: true,
-        pageFling: false,
-        onRender: (_pages) {},
-        onError: (error) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error loading PDF: $error')),
-          );
-        },
-        onPageError: (page, error) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error on page $page: $error')),
-          );
-        },
       ),
     );
   }
