@@ -20,7 +20,7 @@ class Document {
     return Document(
       id: json['id'],
       documentName: json['document_name'],
-      fileUrl: '$baseUrl${json['file']}', // Combine baseUrl with file
+      fileUrl: '${ApiConfig.baseUrl}${json['file']}',
       projectId: json['project_id'],
       documentTypeId: json['document_type_id'],
       uploadedAt: DateTime.parse(json['uploaded_at']),

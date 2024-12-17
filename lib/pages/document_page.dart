@@ -4,15 +4,13 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
-import 'package:permission_handler/permission_handler.dart';
-import 'package:mime/mime.dart';
 import '../api/document_api.dart';
 import '../models/document.dart';
 import '../widget/project_custom_bottom_navbar.dart';
+import 'labor_to_project_page.dart';
 import 'pdf_viewer_page.dart';
 import 'image_viewer_page.dart';
 import 'text_viewer_page.dart';
-
 
 class DocumentPage extends StatefulWidget {
   final int projectId;
@@ -53,12 +51,35 @@ class _DocumentPageState extends State<DocumentPage> {
 
   void _onNavTap(int index) {
     if (index != _currentIndex) {
-      setState(() => _currentIndex = index);
+      setState(() {
+        _currentIndex = index;
+      });
+
       if (index == 0) {
+        // Navigate to Project Details Page
         Navigator.pop(context);
+
+      } else if (index == 1) {
+        // Navigate to the Documents page
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DocumentPage(projectId: widget.projectId),
+          ),
+        );
+      } else if (index == 2) {
+        // Navigate to the Labor to Project page
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => LaborToProjectPage(projectId: widget.projectId),
+          ),
+        );
       }
+      // Add additional navigation logic here if needed
     }
   }
+
 
   Future<void> _downloadPDF(String url, String fileName) async {
     try {
@@ -91,7 +112,6 @@ class _DocumentPageState extends State<DocumentPage> {
       final extension = url.split('.').last.toLowerCase();
 
       if (['jpg', 'jpeg', 'png'].contains(extension)) {
-        // Handle image viewing
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -99,25 +119,13 @@ class _DocumentPageState extends State<DocumentPage> {
           ),
         );
       } else if (extension == 'txt' || extension == 'xml') {
-        // Handle text or XML file viewing
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => TextViewerPage(filePath: file.path),
           ),
         );
-      } else if (['xls', 'xlsx'].contains(extension)) {
-        // Handle Excel file (Open with a third-party viewer or prompt download)
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Excel viewer not implemented yet.')),
-        );
-      } else if (['doc', 'docx'].contains(extension)) {
-        // Handle Word document (Open with a third-party viewer or prompt download)
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Word viewer not implemented yet.')),
-        );
       } else if (extension == 'pdf') {
-        // Handle PDF viewing
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -125,7 +133,6 @@ class _DocumentPageState extends State<DocumentPage> {
           ),
         );
       } else {
-        // Unsupported file type
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Unsupported file format.')),
         );
@@ -137,8 +144,81 @@ class _DocumentPageState extends State<DocumentPage> {
     }
   }
 
-
   Future<void> _uploadDocumentManually() async {
+    List<Map<String, dynamic>> documentTypes = [];
+    try {
+      final response = await _documentService.fetchDocumentTypes();
+      documentTypes = List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to fetch document types: $e')),
+      );
+      return;
+    }
+
+    int? selectedDocumentTypeId = await showDialog<int>(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.grey[900],
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Select Document Type',
+                  style: TextStyle(
+                    color: Colors.green,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: documentTypes.length,
+                    itemBuilder: (context, index) {
+                      final type = documentTypes[index];
+                      return Card(
+                        color: Colors.grey[800],
+                        child: ListTile(
+                          title: Text(
+                            type['name'],
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                          onTap: () => Navigator.pop(context, type['id']),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: TextButton.styleFrom(foregroundColor: Colors.green),
+                    child: const Text('Cancel'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (selectedDocumentTypeId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Document type selection canceled')),
+      );
+      return;
+    }
+
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx', 'xls', 'xlsx', 'txt'],
@@ -152,15 +232,15 @@ class _DocumentPageState extends State<DocumentPage> {
 
       bool success = await _documentService.uploadDocument(
         file: file,
-        documentName: 'Sample Document', // Replace with dynamic name if needed
+        documentName: file.path.split('/').last,
         projectId: widget.projectId,
-        documentTypeId: 1, // Replace with dynamic document type if needed
+        documentTypeId: selectedDocumentTypeId,
       );
 
       setState(() => _isLoading = false);
 
       if (success) {
-        _loadDocuments(); // Reload documents after successful upload
+        _loadDocuments();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('File uploaded successfully')),
         );
@@ -220,13 +300,11 @@ class _DocumentPageState extends State<DocumentPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
-                      icon: Icon(Icons.remove_red_eye_rounded,
-                          color: Colors.blueAccent),
+                      icon: const Icon(Icons.remove_red_eye_rounded, color: Colors.blueAccent),
                       onPressed: () => _viewFile(document.fileUrl, document.documentName),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.download,
-                          color: Colors.green),
+                      icon: const Icon(Icons.download, color: Colors.green),
                       onPressed: () =>
                           _downloadPDF(document.fileUrl, document.documentName),
                     ),
@@ -237,10 +315,7 @@ class _DocumentPageState extends State<DocumentPage> {
           },
         ),
       ),
-      bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: _currentIndex,
-        onTap: _onNavTap,
-      ),
+      // Add floating action button for uploading files
       floatingActionButton: FloatingActionButton(
         onPressed: _uploadDocumentManually,
         child: const Icon(
@@ -248,6 +323,12 @@ class _DocumentPageState extends State<DocumentPage> {
           color: Colors.white,
         ),
         backgroundColor: Colors.green,
+        tooltip: 'Upload Document',
+      ),
+      // Add bottom navigation bar for navigation
+      bottomNavigationBar: CustomBottomNavBar(
+        currentIndex: _currentIndex,
+        onTap: _onNavTap,
       ),
     );
   }

@@ -308,7 +308,7 @@ class _AddLaborPageState extends State<AddLaborPage> {
                 onPressed: _submitForm,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
-                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 152),
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 80),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(28),
                   ),

@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+
 import '../models/labor_to_project.dart';
 import '../models/labor_skill.dart'; // Adjust the path accordingly
-import '../confing/ipadders.dart'; // For dynamic `baseUrl`.
+import '../confing/header.dart'; // ApiHeaders class
+import '../confing/ipadders.dart'; // ApiConfig class for baseUrl
 
 class LaborToProjectApi {
   static const String _laborToProjectEndpoint = '/api/project/labor-to-project';
@@ -10,9 +12,9 @@ class LaborToProjectApi {
 
   /// Fetch labor-to-project assignments by project ID
   Future<List<LaborToProject>> getLaborForProject(int projectId) async {
-    final url = Uri.parse('$baseUrl$_laborToProjectEndpoint?project=$projectId');
+    final url = Uri.parse('${ApiConfig.baseUrl}$_laborToProjectEndpoint?project=$projectId');
     try {
-      final response = await http.get(url, headers: _buildHeaders()).timeout(
+      final response = await http.get(url, headers: ApiHeaders.getHeaders()).timeout(
         const Duration(seconds: 10),
       );
 
@@ -31,9 +33,9 @@ class LaborToProjectApi {
 
   /// Fetch available labor skills
   Future<List<LaborSkill>> getSkills() async {
-    final url = Uri.parse('$baseUrl$_skillsEndpoint');
+    final url = Uri.parse('${ApiConfig.baseUrl}$_skillsEndpoint');
     try {
-      final response = await http.get(url, headers: _buildHeaders()).timeout(
+      final response = await http.get(url, headers: ApiHeaders.getHeaders()).timeout(
         const Duration(seconds: 10),
       );
 
@@ -52,11 +54,11 @@ class LaborToProjectApi {
 
   /// Add a labor-to-project assignment
   Future<void> addLaborToProject(Map<String, dynamic> payload) async {
-    final url = Uri.parse('$baseUrl$_laborToProjectEndpoint/create/');
+    final url = Uri.parse('${ApiConfig.baseUrl}$_laborToProjectEndpoint/create/');
     try {
       final response = await http.post(
         url,
-        headers: _buildHeaders(),
+        headers: ApiHeaders.getHeaders(),
         body: jsonEncode(payload),
       );
 
@@ -64,11 +66,9 @@ class LaborToProjectApi {
         throw Exception('Failed to add labor to project: ${response.body}');
       }
     } catch (e) {
-      print(e);
       throw Exception('Error adding labor to project: $e');
     }
   }
-
 
   /// Update a labor-to-project assignment
   Future<void> updateLaborToProject({
@@ -77,11 +77,11 @@ class LaborToProjectApi {
     required String startDate,
     String? endDate,
   }) async {
-    final url = Uri.parse('$baseUrl$_laborToProjectEndpoint/$id/update/');
+    final url = Uri.parse('${ApiConfig.baseUrl}$_laborToProjectEndpoint/$id/update/');
     try {
       final response = await http.put(
         url,
-        headers: _buildHeaders(),
+        headers: ApiHeaders.getHeaders(),
         body: jsonEncode({
           'labor': laborId,
           'start_date': startDate,
@@ -100,11 +100,10 @@ class LaborToProjectApi {
   }
 
   /// Remove a labor-to-project assignment
-  /// Remove a labor-to-project assignment
   Future<void> removeLaborFromProject(int projectId, int laborId) async {
-    final url = Uri.parse('$baseUrl$_laborToProjectEndpoint/$laborId/delete/');
+    final url = Uri.parse('${ApiConfig.baseUrl}$_laborToProjectEndpoint/$laborId/delete/');
     try {
-      final response = await http.delete(url, headers: _buildHeaders()).timeout(
+      final response = await http.delete(url, headers: ApiHeaders.getHeaders()).timeout(
         const Duration(seconds: 10),
       );
 
@@ -116,16 +115,5 @@ class LaborToProjectApi {
     } catch (e) {
       throw Exception('Error removing labor-to-project: $e');
     }
-  }
-
-
-  /// Helper to build request headers
-  Map<String, String> _buildHeaders() {
-    return {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      // Uncomment and set token if authentication is needed
-      // 'Authorization': 'Bearer YOUR_ACCESS_TOKEN',
-    };
   }
 }
