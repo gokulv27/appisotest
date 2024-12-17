@@ -2,6 +2,30 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    <!-- Internet Permission -->
+    <key>NSAllowsArbitraryLoads</key>
+    <true/>
+
+    <!-- Camera Permission -->
+    <key>NSCameraUsageDescription</key>
+    <string>We need access to your camera to capture photos or videos.</string>
+
+    <!-- Microphone Permission -->
+    <key>NSMicrophoneUsageDescription</key>
+    <string>We need access to your microphone for recording audio.</string>
+
+    <!-- Location Permissions -->
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>We need access to your location to provide location-based services.</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>We need access to your location to provide continuous location-based services.</string>
+
+    <!-- Storage Permission -->
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>We need access to your photo library to upload photos or videos.</string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>We need access to save photos or videos to your library.</string>
+
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
