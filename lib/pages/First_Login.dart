@@ -1,78 +1,61 @@
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import '../api/api_service.dart';
-import '../models/user_model.dart';
-import 'First_Login.dart';
 
+class FirstLoginPage extends StatefulWidget {
+  final String username; // Pass username to this page
 
-class LoginResponseModel {
-  final bool newLogin;
-  final String message;
+  FirstLoginPage({required this.username});
 
-  LoginResponseModel({
-    required this.newLogin,
-    required this.message,
-  });
-
-  factory LoginResponseModel.fromJson(Map<String, dynamic> json) {
-    return LoginResponseModel(
-      newLogin: json['new_login'] ?? false,
-      message: json['message'] ?? '',
-    );
-  }
-}
-
-class HomePage extends StatefulWidget {
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<FirstLoginPage> createState() => _FirstLoginPageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  final int animationDuration = 1800;
-  bool _rememberMe = false;
-  final TextEditingController _usernameController = TextEditingController();
+class _FirstLoginPageState extends State<FirstLoginPage> {
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _rePasswordController = TextEditingController();
   final ApiService _apiService = ApiService();
-  Future<void> _handleLogin() async {
-    final username = _usernameController.text.trim();
-    final password = _passwordController.text.trim();
 
-    if (username.isEmpty || password.isEmpty) {
+  Future<void> _handleFirstLogin() async {
+    final newPassword = _passwordController.text;
+    final rePassword = _rePasswordController.text;
+
+    if (newPassword.isEmpty || rePassword.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please fill in both fields.')),
       );
       return;
     }
 
+    if (newPassword != rePassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Passwords do not match.')),
+      );
+      return;
+    }
+
     try {
-      final response = await _apiService.login(username, password);
+      final response = await _apiService.resetPassword(
+        password: newPassword,
+        token: null, // Optional if token is not required
+        payload: {
+          "username": widget.username,
+          "new_password": newPassword,
+        },
+      );
 
-      // Check if 'new_login' key exists in the response
-      if (response.containsKey('new_login') && response['new_login'] == true) {
-        final loginResponse = LoginResponseModel.fromJson(response);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Password updated successfully!')),
+      );
 
-        // Navigate to FirstLoginPage if newLogin is true
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => FirstLoginPage(username: username),
-          ),
-        );
-      } else {
-        // If the response matches UserModel, parse it as such
-        final user = UserModel.fromJson(response);
-
-        // Navigate to the main page or dashboard
-        Navigator.pushReplacementNamed(context, '/dashboard');
-      }
+      // Navigate to dashboard or home page after successful update
+      Navigator.pushReplacementNamed(context, '/dashboard');
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(error.toString())),
       );
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +70,7 @@ class _HomePageState extends State<HomePage> {
               Colors.grey.shade800,
               Colors.grey.shade900,
               Colors.grey.shade900,
-              Colors.grey.shade400
+              Colors.grey.shade400,
             ],
           ),
         ),
@@ -101,17 +84,17 @@ class _HomePageState extends State<HomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   FadeInUp(
-                    duration: Duration(milliseconds: animationDuration),
+                    duration: Duration(milliseconds: 1000),
                     child: Text(
-                      "Login",
+                      "First Login",
                       style: TextStyle(color: Colors.white, fontSize: 40),
                     ),
                   ),
                   SizedBox(height: 10),
                   FadeInUp(
-                    duration: Duration(milliseconds: animationDuration+300),
+                    duration: Duration(milliseconds: 1300),
                     child: Text(
-                      "Welcome Back",
+                      "Set your new password",
                       style: TextStyle(color: Colors.white, fontSize: 18),
                     ),
                   ),
@@ -134,7 +117,7 @@ class _HomePageState extends State<HomePage> {
                     children: <Widget>[
                       SizedBox(height: 60),
                       FadeInUp(
-                        duration: Duration(milliseconds: animationDuration+400),
+                        duration: Duration(milliseconds: 1400),
                         child: Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
@@ -153,15 +136,14 @@ class _HomePageState extends State<HomePage> {
                                 padding: EdgeInsets.all(10),
                                 decoration: BoxDecoration(
                                   border: Border(
-                                    bottom: BorderSide(
-                                      color: Colors.grey.shade200,
-                                    ),
+                                    bottom: BorderSide(color: Colors.grey.shade200),
                                   ),
                                 ),
                                 child: TextField(
-                                  controller: _usernameController,
+                                  controller: _passwordController,
+                                  obscureText: true,
                                   decoration: InputDecoration(
-                                    hintText: "User Name",
+                                    hintText: "New Password",
                                     hintStyle: TextStyle(color: Colors.grey),
                                     border: InputBorder.none,
                                   ),
@@ -171,16 +153,14 @@ class _HomePageState extends State<HomePage> {
                                 padding: EdgeInsets.all(10),
                                 decoration: BoxDecoration(
                                   border: Border(
-                                    bottom: BorderSide(
-                                      color: Colors.grey.shade200,
-                                    ),
+                                    bottom: BorderSide(color: Colors.grey.shade200),
                                   ),
                                 ),
                                 child: TextField(
-                                  controller: _passwordController,
+                                  controller: _rePasswordController,
                                   obscureText: true,
                                   decoration: InputDecoration(
-                                    hintText: "Password",
+                                    hintText: "Confirm Password",
                                     hintStyle: TextStyle(color: Colors.grey),
                                     border: InputBorder.none,
                                   ),
@@ -192,30 +172,9 @@ class _HomePageState extends State<HomePage> {
                       ),
                       SizedBox(height: 40),
                       FadeInUp(
-                        duration: Duration(milliseconds: animationDuration+500),
-                        child: Row(
-                          children: [
-                            Checkbox(
-                              value: _rememberMe,
-                              onChanged: (bool? value) {
-                                setState(() {
-                                  _rememberMe = value ?? false;
-                                });
-                              },
-                              checkColor: Colors.black,
-                            ),
-                            const Text(
-                              "Remember Me",
-                              style: TextStyle(color: Colors.grey),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 40),
-                      FadeInUp(
-                        duration: Duration(milliseconds: animationDuration+600),
+                        duration: Duration(milliseconds: 1600),
                         child: MaterialButton(
-                          onPressed: _handleLogin,
+                          onPressed: _handleFirstLogin,
                           height: 50,
                           color: Colors.grey[900],
                           shape: RoundedRectangleBorder(
@@ -223,7 +182,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                           child: Center(
                             child: Text(
-                              "Login",
+                              "Set Password",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -232,12 +191,11 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 50),
                     ],
                   ),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),
