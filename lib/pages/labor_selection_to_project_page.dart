@@ -51,7 +51,7 @@ class _LaborSelectionPageState extends State<LaborSelectionPage> {
       final skills = await _laborToProjectApi.getSkills();
       setState(() => _skills = skills);
     } catch (e) {
-      // _showError('Error fetching skills: $e');
+      //  backgroundColor: Colors.green,
     }
   }
 

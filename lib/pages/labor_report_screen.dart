@@ -82,7 +82,7 @@ class _LaborReportScreenState extends State<LaborReportScreen> {
           'Labor Report',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.green,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           PopupMenuButton<String>(

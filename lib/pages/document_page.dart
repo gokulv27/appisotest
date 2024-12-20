@@ -264,11 +264,11 @@ class _DocumentPageState extends State<DocumentPage> {
           'Project Documents',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.green,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Container(
-        color: Colors.grey[900],
+        color: Colors.black,
         child: _isLoading
             ? const Center(
           child: CircularProgressIndicator(color: Colors.green),

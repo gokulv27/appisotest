@@ -32,7 +32,7 @@ dependencies:
   flutter:
     sdk: flutter
   http: ^1.2.2
-  intl: ^0.20.1
+  intl: ^0.19.0
   animate_do: ^3.3.4
   flutter_pdfview: ^1.2.5
   path_provider: ^2.0.15
@@ -45,6 +45,9 @@ dependencies:
   google_maps_flutter: ^2.2.0
   geolocator: ^9.0.2
   provider: ^6.0.3
+  shared_preferences: ^2.3.4
+  table_calendar: ^3.0.7
+
 
 
 
@@ -71,8 +74,8 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   uses-material-design: true
-#  assets:
-#      - assets\images
+
+
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

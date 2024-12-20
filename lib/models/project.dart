@@ -33,27 +33,27 @@ class Project {
     required this.activeStatus,
   });
 
-  // Factory method to parse JSON data
+  /// Factory method to parse JSON data
   factory Project.fromJson(Map<String, dynamic> json) {
     return Project(
-      id: json['id'],
-      clientId: json['client'],
-      clientName: json['client_name'],
-      projectName: json['project_name'],
-      location: json['location'],
-      budget: double.parse(json['budget']),
-      landFacing: json['land_facing'],
-      landWidth: double.parse(json['land_width']),
-      landBreadth: double.parse(json['land_breadth']),
-      numFloors: json['num_floors'],
-      buildArea: double.parse(json['build_area']),
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: DateTime.parse(json['updated_at']),
-      activeStatus: json['active_status'],
+      id: json['id'] ?? 0, // Fallback to 0 if null
+      clientId: json['client'] ?? 0,
+      clientName: json['client_name'] ?? 'Unknown',
+      projectName: json['project_name'] ?? 'Unknown',
+      location: json['location'] ?? 'Unknown',
+      budget: _parseDouble(json['budget']),
+      landFacing: json['land_facing'] ?? 'Unknown',
+      landWidth: _parseDouble(json['land_width']),
+      landBreadth: _parseDouble(json['land_breadth']),
+      numFloors: json['num_floors'] ?? 0,
+      buildArea: _parseDouble(json['build_area']),
+      createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updated_at'] ?? '') ?? DateTime.now(),
+      activeStatus: _parseBool(json['active_status']),
     );
   }
 
-  // Method to convert the object back to JSON
+  /// Method to convert the object back to JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -72,9 +72,29 @@ class Project {
       'active_status': activeStatus,
     };
   }
+
+  /// Helper to safely parse double values
+  static double _parseDouble(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) {
+      return double.tryParse(value) ?? 0.0;
+    }
+    return 0.0; // Fallback for unsupported types
+  }
+
+  /// Helper to safely parse boolean values
+  static bool _parseBool(dynamic value) {
+    if (value == null) return false;
+    if (value is bool) return value;
+    if (value is int) return value == 1;
+    if (value is String) return value.toLowerCase() == 'true';
+    return false;
+  }
 }
 
-// Function to parse a list of Projects from JSON
+/// Function to parse a list of Projects from JSON
 List<Project> parseProjects(String responseBody) {
   final parsed = json.decode(responseBody).cast<Map<String, dynamic>>();
   return parsed.map<Project>((json) => Project.fromJson(json)).toList();

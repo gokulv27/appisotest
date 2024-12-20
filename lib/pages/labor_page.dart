@@ -59,45 +59,7 @@ class _LaborPageState extends State<LaborPage> {
     });
   }
 
-  Future<void> _deleteLabor(Labor labor) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Confirm Delete'),
-          content: Text('Are you sure you want to delete ${labor.name}?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Delete', style: TextStyle(color: Colors.red)),
-            ),
-          ],
-        );
-      },
-    );
 
-    if (confirm != true) return;
-
-    try {
-      await LaborApi.deleteLabor(labor.id);
-      setState(() {
-        _labors.remove(labor);
-        _filteredLabors.remove(labor);
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Labor deleted successfully')),
-      );
-    } catch (e) {
-      print('Error deleting labor: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to delete labor: $e')),
-      );
-    }
-  }
 
   Future<void> _editLabor(Labor labor) async {
     final result = await Navigator.of(context).push(
@@ -121,11 +83,11 @@ class _LaborPageState extends State<LaborPage> {
       appBar: AppBar(
         title: const Text('Labor Management', style: TextStyle(color: Colors.white)),
         iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.green,
       ),
       drawer: const DrawerWidget(),
       body: Container(
-        color: Colors.grey[900],
+        color: Colors.black,
         child: Column(
           children: [
             Padding(
@@ -139,7 +101,7 @@ class _LaborPageState extends State<LaborPage> {
                   hintStyle: TextStyle(color: Colors.grey[400]),
                   prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
                   filled: true,
-                  fillColor: Colors.grey[800],
+                  fillColor: Colors.grey[900],
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide.none,
@@ -164,7 +126,7 @@ class _LaborPageState extends State<LaborPage> {
                 itemBuilder: (context, index) {
                   final labor = _filteredLabors[index];
                   return Card(
-                    color: Colors.grey[800],
+                    color: Colors.grey[900],
                     margin: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 8,
@@ -207,11 +169,7 @@ class _LaborPageState extends State<LaborPage> {
                                 color: Colors.white),
                             onPressed: () => _editLabor(labor),
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.delete,
-                                color: Colors.red),
-                            onPressed: () => _deleteLabor(labor),
-                          ),
+
                         ],
                       ),
                     ),

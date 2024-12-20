@@ -25,11 +25,11 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.grey,
-        scaffoldBackgroundColor: Colors.grey[900],
+        scaffoldBackgroundColor: Colors.black,
       ),
       home: FadeIn(
         duration: const Duration(milliseconds: 1000),
-        child: HomePage(),
+        child: DashboardPage(),
         //   child: const VendorSelectionPage(projectId: 1,),
       ),
       routes: {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:animate_do/animate_do.dart';
 import '../models/labor.dart';
 import '../models/labor_skill.dart';
 import '../api/labor_api.dart';
@@ -69,10 +70,8 @@ class _AddLaborPageState extends State<AddLaborPage> {
           );
         }
       });
-      print('Skills loaded: ${_skills.length}');
     } catch (e) {
       setState(() => _isLoading = false);
-      print('Error loading skills: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to load skills: $e')),
       );
@@ -92,6 +91,28 @@ class _AddLaborPageState extends State<AddLaborPage> {
     super.dispose();
   }
 
+  InputDecoration _getInputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: TextStyle(color: Colors.grey[400]),
+      filled: true,
+      fillColor: Colors.grey[900],
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Colors.green, width: 2),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Colors.red, width: 2),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    );
+  }
+
   Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -100,13 +121,13 @@ class _AddLaborPageState extends State<AddLaborPage> {
         id: widget.labor?.id ?? 0,
         name: _nameController.text,
         phoneNo: _phoneController.text,
-        skillId: _selectedSkill?.id ?? 0, // Default to 0 if null
+        skillId: _selectedSkill?.id ?? 0,
         skillName: _selectedSkill?.name ?? 'Unknown',
         aadharNo: _aadharController.text,
         emergencyContactNumber: _emergencyContactController.text,
         address: _addressController.text,
         city: _cityController.text,
-        state: _selectedState ?? 'Unknown', // Default to 'Unknown' if null
+        state: _selectedState ?? 'Unknown',
         pincode: _pincodeController.text,
         dailyWages: double.tryParse(_dailyWagesController.text) ?? 0.0,
         createdAt: widget.labor?.createdAt ?? DateTime.now(),
@@ -127,34 +148,10 @@ class _AddLaborPageState extends State<AddLaborPage> {
 
       Navigator.of(context).pop(true);
     } catch (e) {
-      print('Error submitting form: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to save labor: $e')),
       );
     }
-  }
-
-
-  InputDecoration _getInputDecoration(String label) {
-    return InputDecoration(
-      labelText: label,
-      labelStyle: TextStyle(color: Colors.grey[400]),
-      filled: true,
-      fillColor: Colors.grey[800],
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide.none,
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Colors.green, width: 2),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Colors.red, width: 2),
-      ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-    );
   }
 
   @override
@@ -165,150 +162,44 @@ class _AddLaborPageState extends State<AddLaborPage> {
           widget.labor != null ? 'Edit Labor' : 'Add Labor',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Colors.black,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Colors.green,
       ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
-          : Container(
-        color: Colors.grey[900],
-        child: Column(
-          children: [
-            Expanded(
+          : Stack(
+        children: [
+          Container(
+            color: Colors.black,
+            child: SafeArea(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      TextFormField(
-                        controller: _nameController,
-                        decoration: _getInputDecoration('Name'),
-                        style: const TextStyle(color: Colors.white),
-                        validator: (value) =>
-                        value?.isEmpty ?? true ? 'Please enter a name' : null,
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _phoneController,
-                        decoration: _getInputDecoration('Phone Number'),
-                        style: const TextStyle(color: Colors.white),
-                        keyboardType: TextInputType.phone,
-                        validator: (value) =>
-                        value?.isEmpty ?? true ? 'Please enter a phone number' : null,
-                      ),
-                      const SizedBox(height: 16),
-                      DropdownButtonFormField<LaborSkill>(
-                        value: _selectedSkill,
-                        hint: Text(
-                          'Select Skill',
-                          style: TextStyle(color: Colors.grey[400]),
-                        ),
-                        onChanged: (LaborSkill? newValue) {
-                          setState(() {
-                            _selectedSkill = newValue;
-                          });
-                          print('Selected skill: ${newValue?.name}');
-                        },
-                        items: _skills.map((LaborSkill skill) {
-                          return DropdownMenuItem<LaborSkill>(
-                            value: skill,
-                            child: Text(skill.name, style: const TextStyle(color: Colors.white)),
-                          );
-                        }).toList(),
-                        decoration: _getInputDecoration('Skill'),
-                        dropdownColor: Colors.grey[800],
-                        style: const TextStyle(color: Colors.white),
-                        validator: (value) => value == null ? 'Please select a skill' : null,
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _aadharController,
-                        decoration: _getInputDecoration('Aadhar Number'),
-                        style: const TextStyle(color: Colors.white),
-                        keyboardType: TextInputType.number,
-                        validator: (value) =>
-                        value?.isEmpty ?? true ? 'Please enter an Aadhar number' : null,
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _emergencyContactController,
-                        decoration: _getInputDecoration('Emergency Contact'),
-                        style: const TextStyle(color: Colors.white),
-                        keyboardType: TextInputType.phone,
-                        validator: (value) => value?.isEmpty ?? true
-                            ? 'Please enter an emergency contact' : null,
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _addressController,
-                        decoration: _getInputDecoration('Address'),
-                        style: const TextStyle(color: Colors.white),
-                        validator: (value) =>
-                        value?.isEmpty ?? true ? 'Please enter an address' : null,
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _cityController,
-                        decoration: _getInputDecoration('City'),
-                        style: const TextStyle(color: Colors.white),
-                        validator: (value) =>
-                        value?.isEmpty ?? true ? 'Please enter a city' : null,
-                      ),
-                      const SizedBox(height: 16),
-                      DropdownButtonFormField<String>(
-                        value: _selectedState,
-                        hint: Text(
-                          'Select State',
-                          style: TextStyle(color: Colors.grey[400]),
-                        ),
-                        onChanged: (value) => setState(() => _selectedState = value),
-                        items: _states.map((state) {
-                          return DropdownMenuItem(
-                            value: state,
-                            child: Text(state, style: const TextStyle(color: Colors.white)),
-                          );
-                        }).toList(),
-                        decoration: _getInputDecoration('State'),
-                        dropdownColor: Colors.grey[800],
-                        style: const TextStyle(color: Colors.white),
-                        validator: (value) => value == null ? 'Please select a state' : null,
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _pincodeController,
-                        decoration: _getInputDecoration('Pincode'),
-                        style: const TextStyle(color: Colors.white),
-                        keyboardType: TextInputType.number,
-                        validator: (value) =>
-                        value?.isEmpty ?? true ? 'Please enter a pincode' : null,
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _dailyWagesController,
-                        decoration: _getInputDecoration('Daily Wages'),
-                        style: const TextStyle(color: Colors.white),
-                        keyboardType: TextInputType.number,
-                        validator: (value) {
-                          if (value?.isEmpty ?? true) return 'Please enter daily wages';
-                          if (double.tryParse(value!) == null) return 'Please enter a valid number';
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 32),
-                    ],
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        ..._buildFormFields(),
+                        SizedBox(height: 80),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              color: Colors.black,
+              padding: EdgeInsets.all(16),
               child: ElevatedButton(
                 onPressed: _submitForm,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
-                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 80),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(28),
                   ),
@@ -323,9 +214,69 @@ class _AddLaborPageState extends State<AddLaborPage> {
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
+
+  List<Widget> _buildFormFields() {
+    final fields = [
+      _buildField('Name', _nameController),
+      _buildField('Phone Number', _phoneController, keyboardType: TextInputType.phone),
+      _buildField('Aadhar Number', _aadharController),
+      _buildField('Emergency Contact', _emergencyContactController, keyboardType: TextInputType.phone),
+      _buildField('Address', _addressController),
+      _buildField('City', _cityController),
+      _buildField('Pincode', _pincodeController, keyboardType: TextInputType.number),
+      DropdownButtonFormField<String>(
+        value: _selectedState,
+        hint: Text('Select State', style: TextStyle(color: Colors.grey[400])),
+        onChanged: (String? newValue) => setState(() => _selectedState = newValue),
+        items: _states.map((state) => DropdownMenuItem(
+          value: state,
+          child: Text(state, style: const TextStyle(color: Colors.white)),
+        )).toList(),
+        decoration: _getInputDecoration('State'),
+        dropdownColor: Colors.black,
+        style: const TextStyle(color: Colors.white),
+      ),
+      DropdownButtonFormField<LaborSkill>(
+        value: _selectedSkill,
+        hint: Text('Select Skill', style: TextStyle(color: Colors.grey[400])),
+        onChanged: (LaborSkill? newValue) => setState(() => _selectedSkill = newValue),
+        items: _skills.map((skill) => DropdownMenuItem(
+          value: skill,
+          child: Text(skill.name, style: const TextStyle(color: Colors.white)),
+        )).toList(),
+        decoration: _getInputDecoration('Skill'),
+        dropdownColor: Colors.black,
+        style: const TextStyle(color: Colors.white),
+      ),
+      _buildField('Daily Wages', _dailyWagesController, keyboardType: TextInputType.number),
+    ];
+
+    return fields
+        .asMap()
+        .entries
+        .map((e) => FadeInUp(
+      duration: Duration(milliseconds: 400 + e.key * 100),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: e.value,
+      ),
+    ))
+        .toList();
+  }
+
+  Widget _buildField(String label, TextEditingController controller, {TextInputType? keyboardType}) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      decoration: _getInputDecoration(label),
+      style: const TextStyle(color: Colors.white),
+      validator: (value) => value?.isEmpty == true ? 'Please enter $label' : null,
+    );
+  }
 }
+

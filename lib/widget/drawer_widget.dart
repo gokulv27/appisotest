@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import '../pages/Report_Project_list_page.dart';
 import '../pages/dashboard.dart';
 import '../pages/labor_page.dart';
 import '../pages/add_labor_page.dart';
+import '../pages/labor_report_screen.dart';
+import '../pages/Report_Project_list_page.dart';
 import '../pages/project_list_page.dart';
 
 class DrawerWidget extends StatelessWidget {
@@ -50,13 +53,13 @@ class DrawerWidget extends StatelessWidget {
             ),
             _buildDrawerItem(
               context,
-              icon: Icons.person_add,
-              title: 'Add Labor',
+              icon: Icons.add_chart_rounded,
+              title: 'Labor Report',
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const AddLaborPage()),
+                  MaterialPageRoute(builder: (context) => const ReportProjectListPage()),
                 );
               },
             ),

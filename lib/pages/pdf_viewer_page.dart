@@ -14,7 +14,7 @@ class PDFViewerPage extends StatelessWidget {
           'PDF Viewer',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Colors.black,
+         backgroundColor: Colors.green,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: PDFView(

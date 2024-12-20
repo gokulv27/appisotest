@@ -14,14 +14,14 @@ class DashboardPage extends StatelessWidget {
             color: Colors.white, // Text color for AppBar title
           ),
         ),
-        backgroundColor: Colors.black, // AppBar background color
+        backgroundColor: Colors.green, // AppBar background color
         iconTheme: const IconThemeData(
           color: Colors.white, // Set color for Drawer icon and other icons
         ),
       ),
       drawer: const DrawerWidget(), // Updated to no longer pass csrfToken
       body: Container(
-        color: Colors.grey[900],
+        color: Colors.black,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import '../models/project.dart';
 import '../api/project_api.dart';
 import '../widget/drawer_widget.dart';
-import 'project_details_page.dart';
+import 'ProjectCalendarPage.dart';
 
-class ProjectPage extends StatefulWidget {
-  const ProjectPage({Key? key}) : super(key: key);
+class ReportProjectListPage extends StatefulWidget {
+  const ReportProjectListPage({Key? key}) : super(key: key);
 
   @override
-  _ProjectPageState createState() => _ProjectPageState();
+  _ReportProjectListPageState createState() => _ReportProjectListPageState();
 }
 
-class _ProjectPageState extends State<ProjectPage> {
+class _ReportProjectListPageState extends State<ReportProjectListPage> {
   late List<Project> _projects;
   late List<Project> _filteredProjects;
   bool _isLoading = false;
@@ -54,6 +54,7 @@ class _ProjectPageState extends State<ProjectPage> {
   }
 
   void _filterProjects(String query) {
+    final lowerQuery = query.toLowerCase();
     setState(() {
       if (query.isEmpty) {
         _filteredProjects = _projects;
@@ -61,8 +62,7 @@ class _ProjectPageState extends State<ProjectPage> {
         _filteredProjects = _projects.where((project) {
           final projectName = project.projectName.toLowerCase();
           final clientName = project.clientName.toLowerCase();
-          return projectName.contains(query.toLowerCase()) ||
-              clientName.contains(query.toLowerCase());
+          return projectName.contains(lowerQuery) || clientName.contains(lowerQuery);
         }).toList();
       }
     });
@@ -73,7 +73,7 @@ class _ProjectPageState extends State<ProjectPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Project Management',
+          'Project List',
           style: TextStyle(color: Colors.white),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
@@ -95,7 +95,7 @@ class _ProjectPageState extends State<ProjectPage> {
                   hintStyle: TextStyle(color: Colors.grey[400]),
                   prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
                   filled: true,
-                  fillColor: Colors.grey[800],
+                  fillColor: Colors.grey[900],
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide.none,
@@ -120,7 +120,7 @@ class _ProjectPageState extends State<ProjectPage> {
                 itemBuilder: (context, index) {
                   final project = _filteredProjects[index];
                   return Card(
-                    color: Colors.grey[800],
+                    color: Colors.grey[900],
                     margin: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 8,
@@ -130,7 +130,10 @@ class _ProjectPageState extends State<ProjectPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => ProjectDetailsPage(project: project),
+                            builder: (context) => ProjectCalendarPage(
+                              project: project,
+                              // Pass projectId
+                            ),
                           ),
                         );
                       },
@@ -171,18 +174,15 @@ class _ProjectPageState extends State<ProjectPage> {
                         children: [
                           Text(
                             'Client: ${project.clientName}',
-                            style:
-                            const TextStyle(color: Colors.grey),
+                            style: const TextStyle(color: Colors.grey),
                           ),
                           Text(
                             'Budget: ₹${project.budget.toStringAsFixed(2)}',
-                            style:
-                            const TextStyle(color: Colors.grey),
+                            style: const TextStyle(color: Colors.grey),
                           ),
                           Text(
                             'Location: ${project.location}',
-                            style:
-                            const TextStyle(color: Colors.grey),
+                            style: const TextStyle(color: Colors.grey),
                           ),
                         ],
                       ),

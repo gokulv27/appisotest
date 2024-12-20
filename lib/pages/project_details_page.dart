@@ -51,10 +51,10 @@ class _ProjectDetailsPageState extends State<ProjectDetailsPage> {
           style: const TextStyle(color: Colors.white),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.green,
       ),
       body: Container(
-        color: Colors.grey[900],
+        color: Colors.black,
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Column(
