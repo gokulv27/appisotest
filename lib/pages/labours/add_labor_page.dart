@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
-import '../models/labor.dart';
-import '../models/labor_skill.dart';
-import '../api/labor_api.dart';
+import '../../models/labor.dart';
+import '../../models/labor_skill.dart';
+import '../../api/labor_api.dart';
 
 class AddLaborPage extends StatefulWidget {
   final Labor? labor;

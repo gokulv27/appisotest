@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../models/labor.dart';
-import '../models/labor_skill.dart';
-import '../api/labor_api.dart';
-import '../api/labor_to_project_api.dart';
+import '../../models/labor.dart';
+import '../../models/labor_skill.dart';
+import '../../api/labor_api.dart';
+import '../../api/labor_to_project_api.dart';
 import 'package:intl/intl.dart';
-import '../models/labor_to_project.dart';
-import '../api/labor_to_project_api.dart';
+import '../../models/labor_to_project.dart';
+import '../../api/labor_to_project_api.dart';
 
 class LaborSelectionPage extends StatefulWidget {
   final int projectId;
@@ -127,7 +127,7 @@ class _LaborSelectionPageState extends State<LaborSelectionPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Select Laborers', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.green,
         iconTheme: const IconThemeData(
           color: Colors.white, // Set the icon color to white
         ),
@@ -174,7 +174,7 @@ class _LaborSelectionPageState extends State<LaborSelectionPage> {
                 hintStyle: TextStyle(color: Colors.grey[400]),
                 prefixIcon: const Icon(Icons.search, color: Colors.white),
                 filled: true,
-                fillColor: Colors.grey[800],
+                fillColor: Colors.grey[900],
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(6.0),
                   borderSide: BorderSide.none,

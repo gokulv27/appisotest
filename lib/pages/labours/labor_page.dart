@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../models/labor.dart';
-import '../api/labor_api.dart';
+import '../../models/labor.dart';
+import '../../api/labor_api.dart';
 import 'add_labor_page.dart';
-import '../widget/drawer_widget.dart';
+import '../../widget/drawer_widget.dart';
 
 class LaborPage extends StatefulWidget {
   const LaborPage({Key? key}) : super(key: key);

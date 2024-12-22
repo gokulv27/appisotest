@@ -8,7 +8,7 @@ import '../confing/ipadders.dart'; // ApiConfig class for baseUrl
 
 class LaborToProjectApi {
   static const String _laborToProjectEndpoint = '/api/project/labor-to-project';
-  static const String _skillsEndpoint = '/api/masters/api/skill/';
+  static const String _skillsEndpoint = '/api/master/api/skill/';
 
   /// Fetch labor-to-project assignments by project ID
   Future<List<LaborToProject>> getLaborForProject(int projectId) async {

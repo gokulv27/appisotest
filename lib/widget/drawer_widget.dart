@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../pages/Report_Project_list_page.dart';
+import '../pages/Report/Report_Project_list_page.dart';
 import '../pages/dashboard.dart';
-import '../pages/labor_page.dart';
-import '../pages/add_labor_page.dart';
-import '../pages/labor_report_screen.dart';
-import '../pages/Report_Project_list_page.dart';
-import '../pages/project_list_page.dart';
+import '../pages/labours/labor_page.dart';
+import '../pages/labours/add_labor_page.dart';
+import '../pages/labours/adco_list_page.dart';
+import '../pages/Report/Report_Project_list_page.dart';
+import '../pages/project/project_list_page.dart';
 
 class DrawerWidget extends StatelessWidget {
   const DrawerWidget({Key? key}) : super(key: key);

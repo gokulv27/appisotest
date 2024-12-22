@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../models/project.dart';
-import '../widget/project_custom_bottom_navbar.dart';
+import '../../models/project.dart';
+import '../../widget/project_custom_bottom_navbar.dart';
 import 'package:intl/intl.dart';
-import 'document_page.dart';
-import 'labor_to_project_page.dart';
+import '../document/document_page.dart';
+import '../labours/labor_to_project_page.dart';
 
 class ProjectDetailsPage extends StatefulWidget {
   final Project project;

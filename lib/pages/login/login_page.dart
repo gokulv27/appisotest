@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
-import '../api/api_service.dart';
-import '../models/user_model.dart';
+import '../../api/api_service.dart';
+import '../../models/user_model.dart';
 import 'First_Login.dart';
 
 class LoginResponseModel {

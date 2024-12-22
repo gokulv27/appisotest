@@ -8,7 +8,7 @@ import '../confing/header.dart'; // ApiHeaders class for headers
 class DocumentService {
   /// Fetch project documents by project ID
   Future<List<Document>> getProjectDocuments(int projectId, {String? token}) async {
-    final url = Uri.parse('${ApiConfig.baseUrl}api/project/document/$projectId/list/');
+    final url = Uri.parse('${ApiConfig.baseUrl}/api/project/document/$projectId/list/');
     try {
       final response = await http.get(url, headers: ApiHeaders.getHeaders(token: token));
 
@@ -33,7 +33,7 @@ class DocumentService {
     required int documentTypeId,
     String? token,
   }) async {
-    final url = Uri.parse('${ApiConfig.baseUrl}api/project/document/create/');
+    final url = Uri.parse('${ApiConfig.baseUrl}/api/project/document/create/');
     try {
       final request = http.MultipartRequest('POST', url)
         ..headers.addAll(ApiHeaders.getHeaders(token: token))
@@ -81,7 +81,7 @@ class DocumentService {
 
   /// Delete a document by ID
   Future<void> deleteDocument(int documentId, {String? token}) async {
-    final url = Uri.parse('${ApiConfig.baseUrl}api/project/document/delete/$documentId/');
+    final url = Uri.parse('${ApiConfig.baseUrl}/api/project/document/delete/$documentId/');
     try {
       final response = await http.delete(url, headers: ApiHeaders.getHeaders(token: token));
 
@@ -97,7 +97,7 @@ class DocumentService {
 
   /// Fetch document types (to assist in uploading with valid `document_type_id`)
   Future<List<Map<String, dynamic>>> fetchDocumentTypes({String? token}) async {
-    final url = Uri.parse('${ApiConfig.baseUrl}api/master/document-type/');
+    final url = Uri.parse('${ApiConfig.baseUrl}/api/master/document-type/');
     try {
       final response = await http.get(url, headers: ApiHeaders.getHeaders(token: token));
 

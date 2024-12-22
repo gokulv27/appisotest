@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
-import '../models/project.dart';
-import 'labor_report_cart_screen.dart'; // Import CartPage
+import '../../models/project.dart';
+import '../labours/labor_report_cart_screen.dart'; // Import CartPage
 
 class ProjectCalendarPage extends StatefulWidget {
   final Project project;

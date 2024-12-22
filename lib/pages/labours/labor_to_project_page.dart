@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../models/labor_skill.dart';
-import '../models/labor_to_project.dart';
-import '../api/labor_to_project_api.dart';
-import '../widget/project_custom_bottom_navbar.dart';
-import 'document_page.dart';
-import 'labor_report_screen.dart';
+import '../../models/labor_skill.dart';
+import '../../models/labor_to_project.dart';
+import '../../api/labor_to_project_api.dart';
+import '../../widget/project_custom_bottom_navbar.dart';
+import '../document/document_page.dart';
+import 'adco_list_page.dart';
 import 'labor_selection_to_project_page.dart';
 
 class LaborToProjectPage extends StatefulWidget {
@@ -172,10 +172,7 @@ class _LaborToProjectPageState extends State<LaborToProjectPage> {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () => _removeLabor(labor.id),
-                ),
+
               ],
             ),
           ],
@@ -209,13 +206,13 @@ class _LaborToProjectPageState extends State<LaborToProjectPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => LaborReportScreen(projectId: widget.projectId),
+                  builder: (context) => AdCoListPage(projectId: widget.projectId),
                 ),
               );
             },
             child: const Text(
-              'Report',
-              style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+              'AdHoc',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ),
         ],

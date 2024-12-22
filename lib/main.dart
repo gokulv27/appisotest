@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
-import 'pages/login_page.dart';
+import 'pages/login/login_page.dart';
 import 'pages/dashboard.dart';
-import 'pages/labor_page.dart';
-import 'pages/add_labor_page.dart';
-import 'pages/project_list_page.dart';
-import 'pages/vendors_entry_page.dart';
+import 'pages/labours/labor_page.dart';
+import 'pages/labours/add_labor_page.dart';
+import 'pages/project/project_list_page.dart';
+import 'pages/vendors/vendors_entry_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
