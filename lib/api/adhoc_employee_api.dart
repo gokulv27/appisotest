@@ -11,6 +11,7 @@ class AdHocEmployeeApi {
     final response = await http.get(Uri.parse('$baseUrl/?project=$projectId'));
 
     if (response.statusCode == 200) {
+      print("hi");
       final List<dynamic> data = json.decode(response.body);
       return data.map((e) => AdHocEmployee.fromJson(e)).toList();
     } else {

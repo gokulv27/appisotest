@@ -4,10 +4,11 @@ class LaborToProject {
   final String laborName;
   final String skill;
   final String startDate;
-  final String? endDate; // Nullable field
+  final String? endDate; // Nullable field for optional end date
   final int project;
-  final bool isDeleted; // Added for soft deletion
-  final String? workType; // Added for selected work type
+  final bool isDeleted; // For soft deletion
+  final String? workType; // Optional field for work type
+  final String dailyWages; // Corrected naming convention
 
   LaborToProject({
     required this.id,
@@ -19,9 +20,10 @@ class LaborToProject {
     required this.project,
     this.isDeleted = false,
     this.workType,
+    required this.dailyWages,
   });
 
-  // Factory method for JSON deserialization
+  /// Factory constructor for JSON deserialization
   factory LaborToProject.fromJson(Map<String, dynamic> json) {
     return LaborToProject(
       id: json['id'] as int,
@@ -29,12 +31,15 @@ class LaborToProject {
       laborName: json['labor_name'] ?? 'Unknown',
       skill: json['skill'] ?? 'Unknown',
       startDate: json['start_date'] ?? '',
-      endDate: json['end_date'], // This is nullable
+      endDate: json['end_date'], // Nullable field
       project: json['project'] as int,
+      isDeleted: json['isDeleted'] ?? false,
+      workType: json['workType'],
+      dailyWages: json['labor_daily_wages'] ?? '',
     );
   }
 
-  // Method for JSON serialization
+  /// Method for JSON serialization
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -46,10 +51,11 @@ class LaborToProject {
       'project': project,
       'isDeleted': isDeleted,
       'workType': workType,
+      'labor_daily_wages': dailyWages,
     };
   }
 
-  // Copy method to create new instances with modified fields
+  /// Copy method to create new instances with modified fields
   LaborToProject copyWith({
     int? id,
     int? labor,
@@ -60,6 +66,7 @@ class LaborToProject {
     int? project,
     bool? isDeleted,
     String? workType,
+    String? dailyWages,
   }) {
     return LaborToProject(
       id: id ?? this.id,
@@ -71,6 +78,7 @@ class LaborToProject {
       project: project ?? this.project,
       isDeleted: isDeleted ?? this.isDeleted,
       workType: workType ?? this.workType,
+      dailyWages: dailyWages ?? this.dailyWages,
     );
   }
 }

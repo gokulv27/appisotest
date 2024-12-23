@@ -3,6 +3,8 @@ import '../../api/adhoc_employee_api.dart';
 import '../../models/adhoc_employee.dart';
 import '../../widget/project_custom_bottom_navbar.dart';
 import '../document/document_page.dart';
+import 'adco_list_selectionpage.dart';
+import 'labor_to_project_page.dart';
 
 class AdCoListPage extends StatefulWidget {
   final int projectId;
@@ -16,12 +18,22 @@ class AdCoListPage extends StatefulWidget {
 class _AdCoListPageState extends State<AdCoListPage> {
   int _currentIndex = 0;
   List<AdHocEmployee> _employees = [];
+  List<AdHocEmployee> _filteredEmployees = [];
   bool _isLoading = true;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = "";
 
   @override
   void initState() {
     super.initState();
     _fetchAdHocEmployees();
+    _searchController.addListener(_filterEmployees);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchAdHocEmployees() async {
@@ -29,6 +41,7 @@ class _AdCoListPageState extends State<AdCoListPage> {
       final employees = await AdHocEmployeeApi.getAdHocEmployees(widget.projectId);
       setState(() {
         _employees = employees;
+        _filteredEmployees = employees;
         _isLoading = false;
       });
     } catch (e) {
@@ -39,6 +52,16 @@ class _AdCoListPageState extends State<AdCoListPage> {
         SnackBar(content: Text('Error: ${e.toString()}')),
       );
     }
+  }
+
+  void _filterEmployees() {
+    setState(() {
+      _searchQuery = _searchController.text.toLowerCase();
+      _filteredEmployees = _employees.where((employee) {
+        return employee.laborName.toLowerCase().contains(_searchQuery) ||
+            employee.skill.toLowerCase().contains(_searchQuery);
+      }).toList();
+    });
   }
 
   Widget _buildLaborCard(AdHocEmployee employee) {
@@ -54,14 +77,14 @@ class _AdCoListPageState extends State<AdCoListPage> {
               children: [
                 Row(
                   children: [
-
                     const SizedBox(width: 8.0),
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.grey[700],
                         borderRadius: BorderRadius.circular(8.0),
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12.0, vertical: 4.0),
                       child: Text(
                         employee.laborName,
                         style: const TextStyle(
@@ -72,58 +95,57 @@ class _AdCoListPageState extends State<AdCoListPage> {
                     ),
                   ],
                 ),
-
                 const SizedBox(width: 8.0),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey[700],
-                        borderRadius: BorderRadius.circular(6.0),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
-                      child: Text(
-                        employee.skill.toUpperCase(),
-                        style: const TextStyle(color: Colors.white, fontSize: 15.0),
-                      ),
-                    ),
-
-                  ],
-                ),
-
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
                   decoration: BoxDecoration(
-                    color: employee.isActive ? Colors.green[100] : Colors.red[100],
+                    borderRadius: BorderRadius.circular(6.0),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 12.0, vertical: 4.0),
+                  child: Text(
+                    employee.skill.toUpperCase(),
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 15.0,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 12.0, vertical: 4.0),
+                  decoration: BoxDecoration(
+                    color: employee.isActive ? Colors.green : Colors.red,
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                   child: Text(
                     employee.isActive ? 'Active' : 'Not Active',
-                    style: TextStyle(
-                      color: employee.isActive ? Colors.green[800] : Colors.red[900],
+                    style: const TextStyle(
+                      color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
               ],
             ),
-            Row(mainAxisAlignment:MainAxisAlignment.start,children: [Text(
-              'Daily Wages: ${employee.laborDailyWages}',
-              style: const TextStyle(color: Colors.white70),
+            const SizedBox(height: 8.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Daily Wages: ${employee.laborDailyWages}',
+                  style: const TextStyle(color: Colors.white70),
+                ),
+                Text(
+                  'Hired Date: ${employee.hiredDate}',
+                  style: const TextStyle(color: Colors.white70),
+                ),
+              ],
             ),
-              const SizedBox(width: 0.9,),
-              Text(
-              'Hired Date: ${employee.hiredDate}',
-              style: const TextStyle(color: Colors.white70),
-            ),],)
-
           ],
         ),
       ),
     );
   }
-
 
   void _onNavTap(int index) {
     setState(() {
@@ -151,24 +173,73 @@ class _AdCoListPageState extends State<AdCoListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ad Hoc Employees'),
+        title: const Text(
+          'Ad Hoc Employees',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.green,
+        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
+          TextButton(
             onPressed: () {
-              // Handle Add Employee Action
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => LaborToProjectPage(projectId: widget.projectId),
+                ),
+              );
             },
+            child: const Text(
+              'Labour',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : _employees.isEmpty
-          ? const Center(child: Text('No employees found'))
-          : ListView.builder(
-        itemCount: _employees.length,
-        itemBuilder: (context, index) => _buildLaborCard(_employees[index]),
+          : Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _searchController,
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                hintText: 'Search by Name or Skill',
+                hintStyle: TextStyle(color: Colors.grey[400]),
+                prefixIcon: const Icon(Icons.search, color: Colors.white),
+                filled: true,
+                fillColor: Colors.grey[900],
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(6.0),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: _filteredEmployees.isEmpty
+                ? const Center(child: Text('No employees found'))
+                : ListView.builder(
+              itemCount: _filteredEmployees.length,
+              itemBuilder: (context, index) =>
+                  _buildLaborCard(_filteredEmployees[index]),
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AvailableLaborPage(projectId: widget.projectId),
+            ),
+          );
+        },
+        backgroundColor: Colors.green,
+        child: const Icon(Icons.add, color: Colors.white),
       ),
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: _currentIndex,

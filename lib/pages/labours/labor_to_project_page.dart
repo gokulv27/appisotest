@@ -139,19 +139,6 @@ class _LaborToProjectPageState extends State<LaborToProjectPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Checkbox(
-                  value: _selectedLabors.contains(labor.id),
-                  onChanged: (bool? value) {
-                    setState(() {
-                      if (value == true) {
-                        _selectedLabors.add(labor.id);
-                      } else {
-                        _selectedLabors.remove(labor.id);
-                      }
-                    });
-                  },
-                  activeColor: Colors.green,
-                ),
                 Expanded(
                   child: Text(
                     labor.laborName.toUpperCase(),
@@ -162,7 +149,7 @@ class _LaborToProjectPageState extends State<LaborToProjectPage> {
                 const SizedBox(width: 8.0),
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.blue[600]!,
+                    color: Colors.green,
                     borderRadius: BorderRadius.circular(12.0),
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
@@ -175,6 +162,14 @@ class _LaborToProjectPageState extends State<LaborToProjectPage> {
 
               ],
             ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text('dailywages:${labor.dailyWages}',style: TextStyle(color: Colors.grey[600]),),
+                )
+              ],
+            )
           ],
         ),
       ),
@@ -196,11 +191,7 @@ class _LaborToProjectPageState extends State<LaborToProjectPage> {
           color: Colors.white, // Set the icon color to white
         ),
         actions: [
-          if (_selectedLabors.isNotEmpty)
-            IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red),
-              onPressed: _bulkDeleteLabors,
-            ),
+          
           TextButton(
             onPressed: () {
               Navigator.push(

@@ -14,6 +14,7 @@ class Labor {
   final DateTime createdAt;
   final DateTime updatedAt;
 
+
   Labor({
     required this.id,
     required this.name,
@@ -29,6 +30,7 @@ class Labor {
     required this.dailyWages,
     required this.createdAt,
     required this.updatedAt,
+
   });
 
   factory Labor.fromJson(Map<String, dynamic> json) {

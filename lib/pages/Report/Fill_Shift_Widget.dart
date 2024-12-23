@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../api/labor_to_project_api.dart';
 import '../../models/labor_to_project.dart';
-import '../labours/labor_report_cart_screen.dart';
+import 'labor_report_cart_screen.dart';
 
 class FillShiftWidget extends StatefulWidget {
   final int projectId;

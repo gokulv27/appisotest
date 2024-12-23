@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 import '../../api/workday.dart';
 import '../../models/labor_to_project.dart';
 import '../../models/work_day_model.dart';
-import '../Report/Fill_Shift_Widget.dart';
+import 'Fill_Shift_Widget.dart';
 
 void shiftDialog(BuildContext context, int projectId, String projectName, DateTime selectedDate) {
   showModalBottomSheet(
